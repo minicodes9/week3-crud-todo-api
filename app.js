@@ -11,12 +11,36 @@ let todos = [
 app.get('/todos', (req, res) => {
   res.status(200).json(todos); // Send array as JSON
 });
+// GET One – Read by ID
+app.get('/todos/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const todo = todos.find(t => t.id === id);
+
+  if (!todo) {
+    return res.status(404).json({ message: 'Todo not found' });
+  }
+
+  res.json(todo);
+});
+
 
 // POST New – Create
 app.post('/todos', (req, res) => {
-  const newTodo = { id: todos.length + 1, ...req.body }; // Auto-ID
+  const { task } = req.body;
+
+  // Validation
+  if (!task) {
+    return res.status(400).json({ message: 'Task field is required' });
+  }
+
+  const newTodo = {
+    id: todos.length + 1,
+    task,
+    completed: false
+  };
+
   todos.push(newTodo);
-  res.status(201).json(newTodo); // Echo back
+  res.status(201).json(newTodo);
 });
 
 // PATCH Update – Partial
@@ -41,6 +65,12 @@ app.get('/todos/completed', (req, res) => {
   const completed = todos.filter((t) => t.completed);
   res.json(completed); // Custom Read!
 });
+// GET Active – not completed
+app.get('/todos/active', (req, res) => {
+  const activeTodos = todos.filter((t) => !t.completed);
+  res.json(activeTodos);
+});
+
 
 app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Server error!' });
