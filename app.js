@@ -11,17 +11,7 @@ let todos = [
 app.get('/todos', (req, res) => {
   res.status(200).json(todos); // Send array as JSON
 });
-// GET One – Read by ID
-app.get('/todos/:id', (req, res) => {
-  const id = parseInt(req.params.id);
-  const todo = todos.find(t => t.id === id);
 
-  if (!todo) {
-    return res.status(404).json({ message: 'Todo not found' });
-  }
-
-  res.json(todo);
-});
 
 
 // POST New – Create
@@ -71,10 +61,23 @@ app.get('/todos/active', (req, res) => {
   res.json(activeTodos);
 });
 
+// GET One – Read by ID
+app.get('/todos/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const todo = todos.find(t => t.id === id);
+
+  if (!todo) {
+    return res.status(404).json({ message: 'Todo not found' });
+  }
+
+  res.json(todo);
+});
+
 
 app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Server error!' });
 });
 
-const PORT = 3002;
-app.listen(PORT, () => console.log(`Server on port ${PORT}`));
+const PORT = process.env.PORT || 3002;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
