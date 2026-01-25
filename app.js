@@ -1,11 +1,12 @@
 const express = require('express');
 const app = express();
-app.use(express.json()); // Parse JSON bodies
 
+const { todoSchema } = require('./middlewares/validator');
 const logger = require('./middlewares/logger');
+
+app.use(express.json());
 app.use(logger);
 
-#
 let todos = [
   { id: 1, task: 'Learn Node.js', completed: false },
   { id: 2, task: 'Build CRUD API', completed: false },
@@ -24,30 +25,38 @@ app.get('/todos', (req, res) => {
 
 
 // POST New – Create
-app.post('/todos', (req, res) => {
-  const { task } = req.body;
+app.post('/todos', (req, res, next) => {
+  try {
+    const { error } = todoSchema.validate(req.body);
+    if (error) return res.status(400).json({ error: error.details[0].message });
 
-  // Validation
-  if (!task) {
-    return res.status(400).json({ message: 'Task field is required' });
+    const newTodo = {
+      id: todos.length + 1,
+      task: req.body.task,
+      completed: false
+    };
+    todos.push(newTodo);
+    res.status(201).json(newTodo);
+  } catch (err) {
+    next(err); // Pass to global error handler
   }
-
-  const newTodo = {
-    id: todos.length + 1,
-    task,
-    completed: false
-  };
-
-  todos.push(newTodo);
-  res.status(201).json(newTodo);
 });
 
-// PATCH Update – Partial
-app.patch('/todos/:id', (req, res) => {
-  const todo = todos.find((t) => t.id === parseInt(req.params.id)); // Array.find()
-  if (!todo) return res.status(404).json({ message: 'Todo not found' });
-  Object.assign(todo, req.body); // Merge: e.g., {completed: true}
-  res.status(200).json(todo);
+
+// PATCH Update 
+app.patch('/todos/:id', (req, res, next) => {
+  try {
+    const { error } = todoSchema.validate(req.body);
+    if (error) return res.status(400).json({ error: error.details[0].message });
+
+    const todo = todos.find(t => t.id === parseInt(req.params.id));
+    if (!todo) return res.status(404).json({ message: 'Todo not found' });
+
+    todo.task = req.body.task;
+    res.json(todo);
+  } catch (err) {
+    next(err);
+  }
 });
 
 // DELETE Remove
