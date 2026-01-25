@@ -3,9 +3,11 @@ const app = express();
 
 const { todoSchema } = require('./middlewares/validator');
 const logger = require('./middlewares/logger');
+const errorHandler = require('./middlewares/errorHandler');
 
 app.use(express.json());
 app.use(logger);
+app.use(errorHandler);
 
 let todos = [
   { id: 1, task: 'Learn Node.js', completed: false },

@@ -1,0 +1,10 @@
+// middlewares/errorHandler.js
+const errorHandler = (err, req, res, next) => {
+  console.error(err.stack); // Logs the error in the terminal
+
+  res.status(err.status || 500).json({
+    message: err.message || 'Something went wrong on the server'
+  });
+};
+
+module.exports = errorHandler;
