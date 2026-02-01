@@ -1,23 +1,20 @@
 const express = require('express');
-const cors = require('cors'); // Moved up
+const cors = require('cors');
 const app = express();
 
 const { todoSchema } = require('./middlewares/validator');
 const logger = require('./middlewares/logger');
-// const errorHandler = require('./middlewares/errorHandler'); // We'll use this at the bottom
 
-app.use(cors()); // Standard cors() is usually enough
+app.use(cors());
 app.use(express.json());
 app.use(logger);
 
-// --- SEED DATA ---
 let todos = [
   { id: 1, task: 'Learn Node.js', completed: false },
   { id: 2, task: 'Build CRUD API', completed: false },
 ];
 
 // --- ROUTES ---
-
 app.get('/', (req, res) => {
   res.send('Week 3 Todo API is live! Visit /todos to see your todos.');
 });
@@ -61,11 +58,8 @@ app.patch('/todos/:id', (req, res, next) => {
   }
 });
 
-// ... (Your DELETE and other GET routes remain the same)
-
-// --- ERROR HANDLING (Must be at the bottom!) ---
 app.use((err, req, res, next) => {
-  console.error(err.stack); // Log the error so you can see it in terminal
+  console.error(err.stack);
   res.status(500).json({ error: 'Server error!' });
 });
 
